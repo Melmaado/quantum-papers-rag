@@ -46,7 +46,7 @@ for archive in RAW_DIR.glob("*.tar.gz"):
                     if r"\begin{document}" in content:
                         clean_content = remove_comment_lines(content)
                         flat_content = flatten(clean_content, tar)
-                        print(archive, name, "->", f"{len(flat_content)} caracters")
+                        print(archive, name, "->", f"{len(flat_content)} characters")
                         paper_id = archive.name.removesuffix(".tar.gz")
                         out_path = TEXT_DIR / f"{paper_id}.tex"
                         with open(out_path, "w", encoding="utf-8") as f:
