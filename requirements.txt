@@ -1,0 +1,6 @@
+requests
+sentence-transformers
+chromadb
+rank_bm25
+pylatexenc
+openai
