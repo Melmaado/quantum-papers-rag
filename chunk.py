@@ -22,6 +22,13 @@ def split_sections(body):
     return sections
 
 def latex_to_plain(tex):
+    r"""Convert a LaTeX fragment to clean plain text.
+    Each \href{url}{text} is replaced by its text before conversion,
+    since pylatexenc can crash on it. After conversion with pylatexenc,
+    image and citation placeholders are removed and whitespace is
+    collapsed into single spaces.
+    """
+    tex = re.sub(r"\\href\{[^}]*\}\{([^}]*)\}", r"\1", tex)
     plain = converter.latex_to_text(tex)
     plain = plain.replace("< g r a p h i c s >", "")
     plain = plain.replace("<cit.>", "")
@@ -35,10 +42,14 @@ for file in TEXT_DIR.glob("*.tex"):
         body = text.split(r"\begin{document}",1)[1].split(r"\end{document}",1)[0]
         sections = split_sections(body)
         print(file.name, len(sections))
-
-        if file.name=="1407.0363.tex":
-            origin = sections[1][1]
-            destination = latex_to_plain(origin)
-            print(origin)
-            print("--------------------------------------------")
-            print(destination[:800])
+        total_words = 0
+        for path, latex in sections:
+            try:
+                plain = latex_to_plain(latex)
+                if plain:
+                    total_words += len(plain.split())
+                else: 
+                    continue
+            except IndexError:
+                print(f"It crashed because of an IndexError in {file.name}, {path}, let's go on")
+        print(total_words)
