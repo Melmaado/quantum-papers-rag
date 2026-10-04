@@ -15,6 +15,7 @@ def remove_comment_lines(text):
 def flatten(text,tar):
     r"""Return the text with each \input or \include replaced by the included file.
     Included files are read from the tar archive, and their comment lines are removed.
+    They are themselves flattened.
     Inclusions of files missing from the archive are dropped.
     """
     document = []
@@ -27,6 +28,7 @@ def flatten(text,tar):
             if file_name in tar.getnames():
                 raw_text = tar.extractfile(file_name).read().decode("utf-8", errors="ignore")
                 content = remove_comment_lines(raw_text)
+                content = flatten(content, tar)
                 document.append(content)
         else:
             document.append(line)
@@ -54,4 +56,4 @@ for archive in RAW_DIR.glob("*.tar.gz"):
                         break
 
     else:
-        print("not an archive")
+        print(f"{archive.name} not an archive")
