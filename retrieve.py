@@ -46,6 +46,48 @@ def search_bm25(question, bm25, chunks, k=5):
         best_of.append((scores[pos],chunks[pos]))
     return best_of
 
+def rrf_fuse(rankings, k=60):
+    """Fuse several rankings with Reciprocal Rank Fusion (RRF).
+    Each ranking is a list of items, best first. An item at rank r
+    (starting at 1) gets 1 / (k + r) from that ranking, and its scores
+    are summed over all rankings. Returns the items sorted by fused
+    score, best first. Items found in several rankings rise to the top.
+    """
+    rrf_scores = {}
+    for ranking in rankings:
+        for rank, position in enumerate(ranking, start=1):
+            rrf_scores[position] = rrf_scores.get(position,0) + 1/(k+rank)
+    return sorted(rrf_scores, key=rrf_scores.get, reverse=True)
+
+assert rrf_fuse([["A","B","C"],["C","D","A"]]) == ['A', 'C', 'B', 'D']
+
+def search_hybrid(question, embeddings, bm25, chunks, k = 5, depth = 20):
+    """Return the k best chunks for the question, combining vector and BM25 search.
+    Each method ranks the chunks, and the top `depth` positions of both
+    rankings are fused with Reciprocal Rank Fusion. Chunks ranked well by
+    both methods rise to the top, even if neither ranks them first.
+    Returns a list of chunks, without scores.
+    """
+    best_of = []
+    rankings = []
+    question_vector = model.encode(question, normalize_embeddings = True)
+    tokenized_question = tokenize(question)
+
+    scores_vector  = embeddings @ question_vector
+    scores_bm25 = bm25.get_scores(tokenized_question)
+
+    top_vector = np.argsort(scores_vector)[::-1][:depth]
+    top_bm25 = np.argsort(scores_bm25)[::-1][:depth]
+
+    rankings.append(top_vector)
+    rankings.append(top_bm25)
+    top_positions = rrf_fuse(rankings)[:k]
+
+    for pos in top_positions:
+        best_of.append(chunks[pos])
+
+    return best_of
+
 if not EMBEDDINGS_PATH.exists():
     texts =[]
     for chunk in chunks:
@@ -62,15 +104,23 @@ for chunk in chunks:
 
 bm25 = BM25Okapi(tokenized_chunks)
 
-print(embeddings.shape)
+if __name__ == "__main__":
+    print(embeddings.shape)
 
-results = search_vector("What is the CHSH inequality?", embeddings, chunks)
-for score, chunk in results:
-   print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text']} \n")
+    print("=================VECTOR=================")
 
-print("=================BM25=================")
+    results = search_vector("What is the CHSH inequality?", embeddings, chunks)
+    for score, chunk in results:
+        print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
 
-results = search_bm25("What is the CHSH inequality?", bm25, chunks)
-for score, chunk in results:
-   print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text']} \n")
+    print("=================BM25=================")
 
+    results = search_bm25("What is the CHSH inequality?", bm25, chunks)
+    for score, chunk in results:
+        print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
+
+    print("=================HYBRID=================")
+
+    results = search_hybrid("What is the CHSH inequality?", embeddings, bm25, chunks)
+    for chunk in results:
+        print(f"{chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
