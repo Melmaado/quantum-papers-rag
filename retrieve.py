@@ -12,18 +12,22 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 with open(CHUNKS_PATH, "r", encoding="utf-8") as j:
     chunks = json.load(j)
 
-def search_vector(question, embeddings, chunks, k=5):
-    """Return the k chunks most similar to the question, as (score, chunk) pairs.
-    The question is encoded with the same model as the chunks. Since all
-    embeddings are normalized, the dot product equals the cosine similarity.
-    Results are sorted from the highest score to the lowest.
+
+def rank_vector(question, embeddings, depth):
+    """Return the positions of the `depth` chunks most similar to the question, best first.
+    Since all embeddings are normalized, the dot product equals the cosine similarity.
     """
-    best_of = []
     question_vector = model.encode(question, normalize_embeddings = True)
     scores = embeddings @ question_vector
-    top = np.argsort(scores)[::-1][:k]
+    return np.argsort(scores)[::-1][:depth]
+
+
+def search_vector(question, embeddings, chunks, k=5):
+    """Return the k chunks most similar to the question, best first, using vector search."""
+    best_of = []
+    top = rank_vector(question, embeddings, k)
     for pos in top:
-        best_of.append((scores[pos],chunks[pos]))
+        best_of.append(chunks[pos])
     return best_of
 
 
@@ -33,17 +37,20 @@ def tokenize(text):
     text = re.findall(r"\w+",text)
     return text
 
-def search_bm25(question, bm25, chunks, k=5):
-    """Return the k chunks with the highest BM25 score for the question, as
-    (score, chunk). The question is tokenized like the chunks. Unlike cosine
-    similarities, BM25 are not bounded between 0 and 1, they are sums over
-    the question's words."""
-    best_of = []
+def rank_bm25(question, bm25, depth):
+    """Return the positions of the `depth` chunks with the highest BM25 score, best first.
+    The question is tokenized like the chunks.
+    """
     tokenized_question = tokenize(question)
     scores = bm25.get_scores(tokenized_question)
-    top = np.argsort(scores)[::-1][:k]
+    return np.argsort(scores)[::-1][:depth]
+
+def search_bm25(question, bm25, chunks, k=5):
+    """Return the k chunks with the highest BM25 score for the question, best first."""
+    best_of = []
+    top = rank_bm25(question, bm25, k)
     for pos in top:
-        best_of.append((scores[pos],chunks[pos]))
+        best_of.append(chunks[pos])
     return best_of
 
 def rrf_fuse(rankings, k=60):
@@ -70,17 +77,12 @@ def search_hybrid(question, embeddings, bm25, chunks, k = 5, depth = 20):
     """
     best_of = []
     rankings = []
-    question_vector = model.encode(question, normalize_embeddings = True)
-    tokenized_question = tokenize(question)
-
-    scores_vector  = embeddings @ question_vector
-    scores_bm25 = bm25.get_scores(tokenized_question)
-
-    top_vector = np.argsort(scores_vector)[::-1][:depth]
-    top_bm25 = np.argsort(scores_bm25)[::-1][:depth]
+    top_vector = rank_vector(question, embeddings, depth)
+    top_bm25 = rank_bm25(question, bm25, depth)
 
     rankings.append(top_vector)
     rankings.append(top_bm25)
+
     top_positions = rrf_fuse(rankings)[:k]
 
     for pos in top_positions:
@@ -110,14 +112,14 @@ if __name__ == "__main__":
     print("=================VECTOR=================")
 
     results = search_vector("What is the CHSH inequality?", embeddings, chunks)
-    for score, chunk in results:
-        print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
+    for chunk in results:
+        print(f"{chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
 
     print("=================BM25=================")
 
     results = search_bm25("What is the CHSH inequality?", bm25, chunks)
-    for score, chunk in results:
-        print(f"{score:.3f}: {chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
+    for chunk in results:
+        print(f"{chunk['paper_id']} - {chunk['section']} - {chunk['text'][:150]} \n")
 
     print("=================HYBRID=================")
 
