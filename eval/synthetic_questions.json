@@ -1,0 +1,280 @@
+[
+  {
+    "question": "What loophole has been closed in full-optical implementations of Bell non-locality experiments?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Conclusion"
+      }
+    ]
+  },
+  {
+    "question": "In a two-person simulation of paired spin measurements using a shared random direction, how does the second person decide whether to give an answer, and what answer does he give when he does?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1405.7321",
+        "section": "Bipartite quantum states > Werner's model"
+      }
+    ]
+  },
+  {
+    "question": "What resources are required to simulate quantum statistics in signaling models when Bell-inequality violations imply effective superluminal communication between spacelike-separated settings and detection events?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1303.3081",
+        "section": "The robustness of quantum knowledge > Signaling models: simulation with communication"
+      }
+    ]
+  },
+  {
+    "question": "In a three-party setup where each pair shares the same kind of resource, what does finding one enlarged arrangement with no valid probability assignment prove about the original results?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Methods for general networks > Inflation of networks > Classical inflation"
+      }
+    ]
+  },
+  {
+    "question": "In a three-party setup with no measurement choices and two possible results per observer, what did researchers conjecture about the probability patterns achievable with shared randomness compared with those achievable using quantum systems?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Elementary network scenarios > The triangle network > Inflation in the triangle network"
+      }
+    ]
+  },
+  {
+    "question": "What device amplified the transition-edge sensor (TES) signal before it was digitized and recorded?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1511.03190",
+        "section": "Main text"
+      }
+    ]
+  },
+  {
+    "question": "In the optical quantum key-sharing method, what fraction of the initially shared information remains after correcting transmission errors, and what does perfect correction imply for the possible transmission distance?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "0802.4155",
+        "section": "Continuous-variable protocols > Bounds for Gaussian protocols > Information Alice-Bob"
+      }
+    ]
+  },
+  {
+    "question": "Under what two circumstances can the conclusion of an allegedly device-independent assessment be thwarted?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1303.3081",
+        "section": "Device-independent assessment > Subtle is the device, and maybe malicious"
+      }
+    ]
+  },
+  {
+    "question": "What value does the Popescu–Rohrlich example reach in the two-observer, two-choice test?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Introduction > Standard Bell scenarios"
+      },
+      {
+        "paper_id": "1303.2849",
+        "section": "Mathematical characterization of nonlocal correlations > Bell inequality violations > No-signaling bounds"
+      },
+      {
+        "paper_id": "2508.10979",
+        "section": "The CHSH Inequality at Colliders > Beyond Quantum Mechanics"
+      }
+    ]
+  },
+  {
+    "question": "How can the statistics of any quantum Bell experiment be simulated using only real Hilbert spaces, and what additional resources are required for this simulation?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Further topics and related areas > Device-independent considerations"
+      }
+    ]
+  },
+  {
+    "question": "For a separable bipartite quantum state, what property does the expectation value matrix (EVM) \\(\\chi\\) constructed from observables \\(M_k=A_k\\otimes B_l\\) possess, and how can its entanglement be tested using the PPT criterion?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "0811.2803",
+        "section": "Bipartite entanglement > Separability criteria > Other criteria"
+      }
+    ]
+  },
+  {
+    "question": "In a two-system quantum correlation test, what can breaking the expected statistical limits certify even when the hardware and measurement details are unknown?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Introduction > The limitations of non-communicating PhD students"
+      }
+    ]
+  },
+  {
+    "question": "For a massive particle whose mode function satisfies \\(u''+p^2(\\eta)u=0\\), which Bogoliubov coefficient quantifies particle creation, and what does it represent?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1508.01082",
+        "section": "Creation of massive particles with time dependent masses"
+      }
+    ]
+  },
+  {
+    "question": "Why are quantum key-sharing systems that send only a limited set of signals attractive when using measurements with continuously varying outcomes?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "0802.4155",
+        "section": "The Elements of Practical QKD > Explicit Protocols > Continuous-variable Protocols"
+      }
+    ]
+  },
+  {
+    "question": "What assumption about the timing of the quantum-to-classical transition is implicit in discussions of the Bell inequality, and how can cosmological experiments during inflation avoid the associated conclusion?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1508.01082",
+        "section": "Set up for a cosmological Bell experiment > Setting up a cosmological Bell experiment"
+      }
+    ]
+  },
+  {
+    "question": "In a test of quantum nonlocality, what factors can determine the minimum detector performance needed to rule out explanations based on missed detections?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Experimental aspects > Loopholes > Detection Loophole"
+      }
+    ]
+  },
+  {
+    "question": "In a pulsed-source quantum key distribution system, how is the pulse repetition rate \\(\\nu_S^{\\mathrm{pulse}}\\) limited by the source’s maximum repetition rate \\(\\nu_S^{\\max}\\), detector dead time \\(\\tau_d\\), and dark-count interval \\(T_{\\mathrm{dc}}\\)?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "0802.4155",
+        "section": "Secret Key Rate > Raw key rate"
+      }
+    ]
+  },
+  {
+    "question": "How many random bits can a quantum random number expander certified by the Bell inequality violation produce from its initial short string, and why is it not yet secure against an attacker who stores information and examines it later?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "0911.3427",
+        "section": "Quantum randomness expanders"
+      }
+    ]
+  },
+  {
+    "question": "For the \\(N=6\\), \\(\\vec J=0\\) case, what geometric polytope is defined by the eight inequalities for the second moments \\(J_k^2\\), and what does a violation of any inequality imply about the quantum state?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "0811.2803",
+        "section": "Entanglement detection with collective measurements > Spin squeezing inequalities > Optimal spin squeezing inequalities"
+      }
+    ]
+  },
+  {
+    "question": "When testing quantum correlations with light, what step converts continuously varying measurement results into a small number of categories, such as two?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Experimental aspects > Towards a loophole-free Bell test > Continuous variable systems."
+      }
+    ]
+  },
+  {
+    "question": "What nonlocality property is exhibited by all graph states based on connected graphs?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Multipartite nonlocality > Nonlocality of multipartite quantum states > Graph states"
+      }
+    ]
+  },
+  {
+    "question": "What safeguards are recommended in a test of distant quantum correlations to ensure that the choices are made unpredictably and independently, cannot influence the other location in time, and are detected reliably?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1407.0363",
+        "section": "Conclusions"
+      }
+    ]
+  },
+  {
+    "question": "In the asymptotic \\(N\\to\\infty\\) limit of quantum key distribution, how is the secret fraction \\(r\\) defined, and what is the raw-key rate \\(R\\) intended to quantify?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "0802.4155",
+        "section": "The Elements of Practical QKD > Generic QKD Protocol > Secret fraction and secret key rate"
+      }
+    ]
+  },
+  {
+    "question": "For the two-party measurement model involving Alice and Bob, what family of numerical procedures can place upper limits on the probabilities that quantum systems can produce?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Mathematical characterization of nonlocal correlations > Bell inequality violations > Quantum bounds"
+      }
+    ]
+  },
+  {
+    "question": "What do the abbreviations LOC, DET, and FOC denote in summaries of network nonlocality experiments?",
+    "type": "lingo",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Experiments > Indirect tests: entanglement swapping and nonlocality"
+      }
+    ]
+  },
+  {
+    "question": "In the two-observer spin experiment, what is the chance that both observers obtain “0” when their measurement directions are separated by an angle \\( \\alpha \\)?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "1303.2849",
+        "section": "Nonlocality and quantum theory > Nonlocality vs entanglement > Single-copy nonlocality"
+      }
+    ]
+  },
+  {
+    "question": "What improvement did the 2006 experiment introduce over the 2001 demonstration of distant quantum correlations?",
+    "type": "reworded",
+    "expected": [
+      {
+        "paper_id": "2104.10700",
+        "section": "Experiments > Indirect tests: entanglement swapping and nonlocality"
+      }
+    ]
+  }
+]
