@@ -1,0 +1,22 @@
+[
+    {
+      "question": "What is a PR-box and how far does it violate the CHSH inequality?",
+      "type": "lingo",
+      "expected": [
+        {"paper_id": "1303.2849", "section": "Mathematical characterization of nonlocal correlations > Bell inequality violations > No-signaling bounds"},
+        {"paper_id": "2508.10979", "section": "The CHSH Inequality at Colliders > Beyond Quantum Mechanics"}
+      ]
+    },
+    {
+      "question": "Can pure chance make experimental data seem to break Bell's limit even if nature is local?",
+      "type": "reworded",
+      "expected": [
+        {"paper_id": "1407.0363", "section": "Violation of Local Realism > Experimental violation, and finite sample"}
+      ]
+    },
+    {
+      "question": "How does photosynthesis convert light into chemical energy?",
+      "type": "out_of_corpus",
+      "expected": []
+    }
+  ]
