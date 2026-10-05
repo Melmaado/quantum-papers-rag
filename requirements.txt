@@ -4,3 +4,4 @@ chromadb
 rank_bm25
 pylatexenc
 openai
+python-dotenv
