@@ -45,17 +45,29 @@ total_lingo = 0
 total_reworded = 0
 
 for question in questions:
+    results_vector = search_vector(question['question'], embeddings, chunks)
+    results_bm25 = search_bm25(question['question'], bm25, chunks)
+    results_hybrid = search_hybrid(question['question'], embeddings, bm25, chunks)
+
+    hit_vector = is_hit(results_vector, question['expected'])
+    hit_bm25 = is_hit(results_bm25, question['expected'])
+    hit_hybrid = is_hit(results_hybrid, question['expected'])
+
     if question['type']=='lingo':
         total_lingo+=1
-        if is_hit(search_vector(question['question'], embeddings, chunks), question['expected']): hits_lingo_vector+=1
-        if is_hit(search_bm25(question['question'], bm25, chunks), question['expected']): hits_lingo_bm25 +=1
-        if is_hit(search_hybrid(question['question'], embeddings, bm25, chunks), question['expected']): hits_lingo_hybrid +=1
+        if hit_vector: hits_lingo_vector+=1
+        if hit_bm25: hits_lingo_bm25+=1
+        if hit_hybrid: hits_lingo_hybrid+=1
         
     elif question['type']=='reworded':
         total_reworded+=1
-        if is_hit(search_vector(question['question'], embeddings, chunks), question['expected']): hits_reworded_vector+=1
-        if is_hit(search_bm25(question['question'], bm25, chunks), question['expected']): hits_reworded_bm25 +=1
-        if is_hit(search_hybrid(question['question'], embeddings, bm25, chunks), question['expected']): hits_reworded_hybrid +=1
+        if hit_vector: hits_reworded_vector+=1
+        if hit_bm25: hits_reworded_bm25+=1
+        if hit_hybrid: hits_reworded_hybrid+=1
+    
+    if not(hit_vector and hit_bm25 and hit_hybrid):
+        
+
 
 hit_lingo_vector = 100*hits_lingo_vector/total_lingo
 hit_lingo_bm25 = 100*hits_lingo_bm25/total_lingo
