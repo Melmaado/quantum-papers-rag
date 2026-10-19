@@ -66,7 +66,26 @@ for question in questions:
         if hit_hybrid: hits_reworded_hybrid+=1
     
     if not(hit_vector and hit_bm25 and hit_hybrid):
-        
+        print(f"vector: {'hit' if (hit_vector) else 'miss'} | bm25: {'hit' if (hit_bm25) else 'miss'} | hybrid: {'hit' if (hit_hybrid) else 'miss'} ")
+        print(question['type'], "\n")
+        print(question['question'], "\n")
+        print("Expected:")
+        for expectation in question['expected']:
+            print(f"{expectation['paper_id']} - {expectation['section']}")
+        if not(hit_vector):
+            print("Found (vector):")
+            for result in results_vector:
+                print(f"{result['paper_id']} - {result['section']}")
+        if not(hit_bm25):
+            print("Found (bm25):")
+            for result in results_bm25:
+                print(f"{result['paper_id']} - {result['section']}")
+        if not(hit_hybrid):
+            print("Found (hybrid):")
+            for result in results_hybrid:
+                print(f"{result['paper_id']} - {result['section']}")
+        print(40*"-")
+
 
 
 hit_lingo_vector = 100*hits_lingo_vector/total_lingo
