@@ -2,7 +2,7 @@
 
 A retrieval-augmented generation (RAG) assistant that answers questions about a small corpus of quantum physics papers from arXiv, citing the paper and section each answer comes from.
 
-> **Status:** work in progress. The pipeline runs end to end and retrieval is evaluated; answer quality and refusals are not evaluated yet.
+> **Status:** v1 complete. Retrieval and refusals are evaluated; answer correctness is not evaluated yet.
 
 ## Goal
 
@@ -20,13 +20,13 @@ The aim is not a polished chatbot, but a pipeline where every design choice is m
 | 2. Extraction | `extract.py` | Finds the main `.tex` file, removes comments and inlines `\input` / `\include` files. |
 | 3. Chunking | `chunk.py` | Splits each paper by section and subsection, converts LaTeX to plain text and cuts it into 150-word chunks with a 20-word overlap, each tagged with its arXiv ID and section path. |
 | 4. Retrieval | `retrieve.py` | Embeds the chunks with `all-MiniLM-L6-v2` (cosine similarity with NumPy), builds a BM25 index and returns the top 5 chunks with vector, BM25 or hybrid search. |
-| 5. Generation | `ask.py` | An LLM answers using only the retrieved chunks, cites `[arXiv ID, section]`, and says so when the answer is not in the corpus. |
+| 5. Generation | `ask.py` | An LLM answers using only the retrieved chunks, cites its sources as `[N]` and lists them with their arXiv ID and section, and says so when the answer is not in the corpus. |
 
 ## Evaluation
 
 The test set combines two sources:
 
-- **3 hand-written questions** (`eval/questions.json`): one exact-jargon question, one reworded question and one out-of-corpus question, which should be refused.
+- **10 hand-written questions** (`eval/questions.json`): one exact-jargon question, one reworded question and 8 out-of-corpus questions, which should be refused. Two of them are traps: on the same topic as the corpus, but with an answer that is not in it.
 - **27 synthetic questions** (`eval/synthetic_questions.json`, made by `generate_questions.py`): an LLM writes one question from a randomly sampled chunk, alternating between questions that reuse the passage's technical terms (`lingo`, 14) and reworded questions that avoid them (`reworded`, 13). Questions were reviewed by hand.
 
 Each question lists its expected source sections. `evaluate.py` reports two metrics:
@@ -34,7 +34,7 @@ Each question lists its expected source sections. `evaluate.py` reports two metr
 - **Section-level Hit@5**: one of the top 5 chunks comes from an expected paper **and** section.
 - **Paper-level Hit@5**: one of the top 5 chunks comes from an expected paper, whatever its section.
 
-The 3 hand-written questions are not part of these results yet.
+The hand-written questions are not part of these Hit@5 results yet.
 
 ### Results (Hit@5, synthetic questions)
 
@@ -59,12 +59,20 @@ Every failed question was reviewed by hand (`evaluate.py` prints the expected an
 3. **Real misses** (~3): reworded questions removed every anchoring term (e.g. "enlarged arrangement" for *inflation*), and neither embeddings nor BM25 bridge the gap.
 4. **Duplicate sections**: several chunks from the same section can fill the top 5, leaving less room for other sections.
 
+### Refusals
+
+`evaluate_refusal.py` sends the 8 out-of-corpus questions to the assistant and checks that it answers with the refusal sentence.
+
+**Result: 8/8 refused**, including the two trap questions (the Micius satellite and IBM's Heron processor), where the model could have answered from its own knowledge.
+
+This does not show that the assistant answers when it should: over-refusal on in-corpus questions is not measured yet.
+
 ### Next steps
 
-- Evaluate the 3 hand-written questions, including the out-of-corpus refusal.
 - Keep only the best chunk per section in the results.
 - Rewrite the question with an LLM before retrieval, to map plain-language questions back to the papers' terms.
-- Evaluate the answers themselves (correctness and citations) and the refusals on out-of-corpus questions.
+- Evaluate the answers themselves (correctness and citations).
+- Check for over-refusal: run the assistant on in-corpus questions and count wrong refusals.
 
 ## Known limitations
 
@@ -95,6 +103,7 @@ python chunk.py
 python retrieve.py   # also computes and caches the embeddings
 python ask.py
 python evaluate.py   # Hit@5 per mode, per question type and per paper, plus failed questions
+python evaluate_refusal.py   # refusal rate on out-of-corpus questions
 ```
 
 ## Data
