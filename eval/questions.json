@@ -18,5 +18,40 @@
       "question": "How does photosynthesis convert light into chemical energy?",
       "type": "out_of_corpus",
       "expected": []
+    },
+    {
+      "question": "What distance did the Micius satellite reach for quantum key distribution?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "Who is Elvis Presley?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "How many qubits does IBM’s Heron quantum processor have?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "Which team won the 2022 Nobel Prize in Physics for Bell tests?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "What did Akira Toriyama famously write?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "What is the boiling point of liquid nitrogen?",
+      "type": "out_of_corpus",
+      "expected": []
+    },
+    {
+      "question": "Why is Bowser a villain?",
+      "type": "out_of_corpus",
+      "expected": []
     }
   ]
