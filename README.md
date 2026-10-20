@@ -61,18 +61,18 @@ Every failed question was reviewed by hand (`evaluate.py` prints the expected an
 
 ### Refusals
 
-`evaluate_refusal.py` sends the 8 out-of-corpus questions to the assistant and checks that it answers with the refusal sentence.
+`evaluate_refusal.py` sends the 8 out-of-corpus questions to the assistant and checks that it answers with the refusal sentence. It also counts wrong refusals on the 27 synthetic questions.
 
 **Result: 8/8 refused**, including the two trap questions (the Micius satellite and IBM's Heron processor), where the model could have answered from its own knowledge.
 
-This does not show that the assistant answers when it should: over-refusal on in-corpus questions is not measured yet.
+On the 27 synthetic questions, whose answers are in the corpus, the assistant refused 5 (1/14 `lingo`, 4/13 `reworded`). All 5 are questions where hybrid search missed the expected section: when the right passage is retrieved, the assistant never refuses. On the 3 other retrieval misses, it answered anyway; whether those answers come from neighbouring passages or from the model's own knowledge is not checked yet.
 
 ### Next steps
 
 - Keep only the best chunk per section in the results.
 - Rewrite the question with an LLM before retrieval, to map plain-language questions back to the papers' terms.
 - Evaluate the answers themselves (correctness and citations).
-- Check for over-refusal: run the assistant on in-corpus questions and count wrong refusals.
+- Check the 3 answers given despite a retrieval miss, to see whether they come from neighbouring passages or from the model's own knowledge.
 
 ## Known limitations
 
@@ -103,7 +103,7 @@ python chunk.py
 python retrieve.py   # also computes and caches the embeddings
 python ask.py
 python evaluate.py   # Hit@5 per mode, per question type and per paper, plus failed questions
-python evaluate_refusal.py   # refusal rate on out-of-corpus questions
+python evaluate_refusal.py   # refusals on out-of-corpus questions and over-refusal on in-corpus ones
 ```
 
 ## Data
