@@ -14,6 +14,18 @@ def is_hit(results, expected):
                 return True
     return False
 
+def is_paper_hit(results, expected):
+    """Return True if any retrieved chunk comes from one of the expected papers.
+    A chunk matches when its paper_id equals an expected paper_id, whatever its section.
+    """
+    for chunk in results:
+        for expectation in expected:
+            if chunk['paper_id'] == expectation['paper_id']:
+                return True
+    return False
+
+
+
 with open(SYNTHETIC_QUESTIONS_PATH, "r", encoding="utf-8") as j:
     questions = json.load(j)
 
@@ -44,6 +56,10 @@ hits_reworded_hybrid = 0
 total_lingo = 0
 total_reworded = 0
 
+paper_hits_vector = 0
+paper_hits_bm25 = 0
+paper_hits_hybrid = 0
+
 for question in questions:
     results_vector = search_vector(question['question'], embeddings, chunks)
     results_bm25 = search_bm25(question['question'], bm25, chunks)
@@ -52,6 +68,13 @@ for question in questions:
     hit_vector = is_hit(results_vector, question['expected'])
     hit_bm25 = is_hit(results_bm25, question['expected'])
     hit_hybrid = is_hit(results_hybrid, question['expected'])
+
+    if is_paper_hit(results_vector, question['expected']):
+        paper_hits_vector +=1
+    if is_paper_hit(results_bm25, question['expected']):
+        paper_hits_bm25 +=1
+    if is_paper_hit(results_hybrid, question['expected']):
+        paper_hits_hybrid +=1
 
     if question['type']=='lingo':
         total_lingo+=1
@@ -91,10 +114,15 @@ for question in questions:
 hit_lingo_vector = 100*hits_lingo_vector/total_lingo
 hit_lingo_bm25 = 100*hits_lingo_bm25/total_lingo
 hit_lingo_hybrid = 100*hits_lingo_hybrid/total_lingo
+
+
 hit_reworded_vector = 100*hits_reworded_vector/total_reworded
 hit_reworded_bm25 = 100*hits_reworded_bm25/total_reworded
 hit_reworded_hybrid = 100*hits_reworded_hybrid/total_reworded
 
+paper_hit_at_5_vector = 100*paper_hits_vector/len(questions)
+paper_hit_at_5_bm25 = 100*paper_hits_bm25/len(questions)
+paper_hit_at_5_hybrid  = 100*paper_hits_hybrid/len(questions)
 
 print(f"""lingo:
 hit@5 vector = {hit_lingo_vector:.1f} ({hits_lingo_vector} questions out of {total_lingo})
@@ -105,4 +133,9 @@ reworded:
 hit@5 vector = {hit_reworded_vector:.1f} ({hits_reworded_vector} questions out of {total_reworded})
 hit@5 bm25 = {hit_reworded_bm25:.1f} ({hits_reworded_bm25} questions out of {total_reworded})
 hit@5 hybrid = {hit_reworded_hybrid:.1f} ({hits_reworded_hybrid} questions out of {total_reworded})
+""")
+
+print(f"""Paper hit@5 vector = {paper_hit_at_5_vector:.1f} %
+Paper hit@5 bm25 = {paper_hit_at_5_bm25:.1f}  %
+Paper hit@5 hybrid = {paper_hit_at_5_hybrid:.1f} %
 """)
