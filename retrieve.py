@@ -21,15 +21,48 @@ def rank_vector(question, embeddings, depth):
     scores = embeddings @ question_vector
     return np.argsort(scores)[::-1][:depth]
 
+def dedupe_by_section(positions, chunks, k):
+    """Return up to k chunks from the ranked positions, at most one per section.
+    Positions are read in ranking order. A chunk is skipped when another chunk
+    from the same (paper_id, section) was already kept, so the results cover
+    more distinct sections. Returns fewer than k chunks if there are not enough
+    distinct sections.
+    """
+    results=[]
+    seen= set()
+    for position in positions:
+        chunk = chunks[position]
+        pair = (chunk['paper_id'],chunk['section'])
+        if pair in seen:
+            continue
+        else:
+            results.append(chunk)
+            seen.add(pair)
+            if len(results)==k:
+                return results
+    return results
 
-def search_vector(question, embeddings, chunks, k=5):
-    """Return the k chunks most similar to the question, best first, using vector search."""
+fake_chunks = [
+{"paper_id": "A", "section": "Intro", "text": "..."},
+{"paper_id": "A", "section": "Intro", "text": "..."},
+{"paper_id": "B", "section": "Intro", "text": "..."},
+{"paper_id": "A", "section": "Methods", "text": "..."},
+]
+
+assert dedupe_by_section([0, 1, 2, 3], fake_chunks, 3) == [fake_chunks[0], fake_chunks[2], fake_chunks[3]]
+
+def search_vector(question, embeddings, chunks, k=5, dedupe=False, depth=20):
+    """Return the k chunks most similar to the question, best first, using vector search.
+    With dedupe=True, keeps at most one chunk per section, chosen among the top depth candidates.
+    """
+    if dedupe:
+        positions = rank_vector(question, embeddings, depth)
+        return dedupe_by_section(positions, chunks, k)
     best_of = []
     top = rank_vector(question, embeddings, k)
     for pos in top:
         best_of.append(chunks[pos])
     return best_of
-
 
 def tokenize(text):
     """Lowercase the text and split it into words, dropping punctuation."""
@@ -45,8 +78,13 @@ def rank_bm25(question, bm25, depth):
     scores = bm25.get_scores(tokenized_question)
     return np.argsort(scores)[::-1][:depth]
 
-def search_bm25(question, bm25, chunks, k=5):
-    """Return the k chunks with the highest BM25 score for the question, best first."""
+def search_bm25(question, bm25, chunks, k=5, dedupe=False, depth=20):
+    """Return the k chunks with the highest BM25 score for the question, best first.
+    With dedupe=True, keeps at most one chunk per section, chosen among the top depth candidates.
+    """
+    if dedupe:
+        positions = rank_bm25(question, bm25, depth)
+        return dedupe_by_section(positions, chunks, k)
     best_of = []
     top = rank_bm25(question, bm25, k)
     for pos in top:
@@ -68,12 +106,13 @@ def rrf_fuse(rankings, k=60):
 
 assert rrf_fuse([["A","B","C"],["C","D","A"]]) == ['A', 'C', 'B', 'D']
 
-def search_hybrid(question, embeddings, bm25, chunks, k = 5, depth = 20):
+def search_hybrid(question, embeddings, bm25, chunks, k = 5, depth = 20, dedupe=False):
     """Return the k best chunks for the question, combining vector and BM25 search.
     Each method ranks the chunks, and the top `depth` positions of both
     rankings are fused with Reciprocal Rank Fusion. Chunks ranked well by
     both methods rise to the top, even if neither ranks them first.
     Returns a list of chunks, without scores.
+    With dedupe=True, keeps at most one chunk per section, chosen among the top depth candidates.
     """
     best_of = []
     rankings = []
@@ -82,6 +121,10 @@ def search_hybrid(question, embeddings, bm25, chunks, k = 5, depth = 20):
 
     rankings.append(top_vector)
     rankings.append(top_bm25)
+
+    if dedupe:
+        positions = rrf_fuse(rankings)
+        return dedupe_by_section(positions, chunks, k)
 
     top_positions = rrf_fuse(rankings)[:k]
 

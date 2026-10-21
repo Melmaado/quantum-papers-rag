@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 SYNTHETIC_QUESTIONS_PATH = Path("eval") / "synthetic_questions.json"
+DEDUPE = False
 
 def is_hit(results, expected):
     """Return True if any retrieved chunk comes from one of the expected passages.
@@ -24,8 +25,6 @@ def is_paper_hit(results, expected):
                 return True
     return False
 
-
-
 with open(SYNTHETIC_QUESTIONS_PATH, "r", encoding="utf-8") as j:
     questions = json.load(j)
 
@@ -34,9 +33,9 @@ hits_bm25 = 0
 hits_hybrid = 0
 
 for question in questions:
-    if is_hit(search_vector(question['question'], embeddings, chunks), question['expected']): hits_vector+=1
-    if is_hit(search_bm25(question['question'], bm25, chunks), question['expected']): hits_bm25 +=1
-    if is_hit(search_hybrid(question['question'], embeddings, bm25, chunks), question['expected']): hits_hybrid +=1
+    if is_hit(search_vector(question['question'], embeddings, chunks, dedupe=DEDUPE), question['expected']): hits_vector+=1
+    if is_hit(search_bm25(question['question'], bm25, chunks, dedupe=DEDUPE), question['expected']): hits_bm25 +=1
+    if is_hit(search_hybrid(question['question'], embeddings, bm25, chunks, dedupe=DEDUPE), question['expected']): hits_hybrid +=1
 
 hit_at_5_vector = 100*hits_vector/len(questions)
 hit_at_5_bm25 = 100*hits_bm25/len(questions)
@@ -61,9 +60,9 @@ paper_hits_bm25 = 0
 paper_hits_hybrid = 0
 
 for question in questions:
-    results_vector = search_vector(question['question'], embeddings, chunks)
-    results_bm25 = search_bm25(question['question'], bm25, chunks)
-    results_hybrid = search_hybrid(question['question'], embeddings, bm25, chunks)
+    results_vector = search_vector(question['question'], embeddings, chunks, dedupe=DEDUPE)
+    results_bm25 = search_bm25(question['question'], bm25, chunks, dedupe=DEDUPE)
+    results_hybrid = search_hybrid(question['question'], embeddings, bm25, chunks, dedupe=DEDUPE)
 
     hit_vector = is_hit(results_vector, question['expected'])
     hit_bm25 = is_hit(results_bm25, question['expected'])

@@ -19,7 +19,7 @@ The aim is not a polished chatbot, but a pipeline where every design choice is m
 | 1. Download | `download.py` | Downloads the LaTeX source of the 15 arXiv papers listed in `papers.txt`. |
 | 2. Extraction | `extract.py` | Finds the main `.tex` file, removes comments and inlines `\input` / `\include` files. |
 | 3. Chunking | `chunk.py` | Splits each paper by section and subsection, converts LaTeX to plain text and cuts it into 150-word chunks with a 20-word overlap, each tagged with its arXiv ID and section path. |
-| 4. Retrieval | `retrieve.py` | Embeds the chunks with `all-MiniLM-L6-v2` (cosine similarity with NumPy), builds a BM25 index and returns the top 5 chunks with vector, BM25 or hybrid search. |
+| 4. Retrieval | `retrieve.py` | Embeds the chunks with `all-MiniLM-L6-v2` (cosine similarity with NumPy), builds a BM25 index and returns the top 5 chunks with vector, BM25 or hybrid search, optionally keeping at most one chunk per section. |
 | 5. Generation | `ask.py` | An LLM answers using only the retrieved chunks, cites its sources as `[N]` and lists them with their arXiv ID and section, and says so when the answer is not in the corpus. |
 
 ## Evaluation
@@ -52,12 +52,14 @@ The hand-written questions are not part of these Hit@5 results yet.
 
 ### Error analysis
 
-Every failed question was reviewed by hand (`evaluate.py` prints the expected and retrieved sections). Failures fall into four groups:
+Every failed question was reviewed by hand (`evaluate.py` prints the expected and retrieved sections). Failures fall into three groups, and a fourth hypothesis was tested:
 
 1. **Right paper, neighbouring section** (~4 questions): the hit criterion requires the exact section, and retrieval lands next to it.
 2. **Likely false negatives** (~2): the answer also appears in another section that was retrieved, but each synthetic question has a single expected section.
 3. **Real misses** (~3): reworded questions removed every anchoring term (e.g. "enlarged arrangement" for *inflation*), and neither embeddings nor BM25 bridge the gap.
 4. **Duplicate sections**: several chunks from the same section can fill the top 5, leaving less room for other sections.
+   
+   Tested with `dedupe=True` (at most one chunk per section, chosen among the top 20): section-level Hit@5 is unchanged for all three modes, and paper-level Hit@5 rises from 85.2% to 92.6% for vector search only. Duplicates were not the cause of the misses.
 
 ### Refusals
 
@@ -69,7 +71,6 @@ On the 27 synthetic questions, whose answers are in the corpus, the assistant re
 
 ### Next steps
 
-- Keep only the best chunk per section in the results.
 - Rewrite the question with an LLM before retrieval, to map plain-language questions back to the papers' terms.
 - Evaluate the answers themselves (correctness and citations).
 - Check the 3 answers given despite a retrieval miss, to see whether they come from neighbouring passages or from the model's own knowledge.
