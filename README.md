@@ -2,7 +2,7 @@
 
 A retrieval-augmented generation (RAG) assistant that answers questions about a small corpus of quantum physics papers from arXiv, citing the paper and section each answer comes from.
 
-> **Status:** v1 complete. Retrieval and refusals are evaluated; answer correctness is not evaluated yet.
+> **Status:** v1 complete. Retrieval and refusals are evaluated; answers given despite a retrieval miss were checked by hand, but answer correctness is not evaluated systematically yet.
 
 ## Goal
 
@@ -67,13 +67,23 @@ Every failed question was reviewed by hand (`evaluate.py` prints the expected an
 
 **Result: 8/8 refused**, including the two trap questions (the Micius satellite and IBM's Heron processor), where the model could have answered from its own knowledge.
 
-On the 27 synthetic questions, whose answers are in the corpus, the assistant refused 5 (1/14 `lingo`, 4/13 `reworded`). All 5 are questions where hybrid search missed the expected section: when the right passage is retrieved, the assistant never refuses. On the 3 other retrieval misses, it answered anyway; whether those answers come from neighbouring passages or from the model's own knowledge is not checked yet.
+On the 27 synthetic questions, whose answers are in the corpus, the assistant wrongly refused between 5 and 7 across four runs (1 `lingo` each time, 4 to 6 `reworded`). The model is not deterministic: six questions are refused in every recent run, and two borderline questions switch between refusing and answering. Every refusal occurs on a question where hybrid search missed the expected section: when the right passage is retrieved, the assistant never refuses.
+
+### Answers given despite a retrieval miss
+
+`check_answers.py` prints, for a given question, the answer, the 5 retrieved chunks and the expected section, so that each claim can be checked by hand. Two answers were given despite a retrieval miss:
+
+- **Safeguards in a Bell test**: every claim is supported by the cited chunks, and the model states that the context does not cover detection. The answer is grounded but incomplete, since the section listing all the recommendations was not retrieved.
+- **Numerical procedures bounding quantum correlations**: the model answers with Bell inequalities, which bound local hidden-variable models, while the question asks about quantum bounds (the expected answer is the SDP hierarchy). The claims come from a retrieved chunk, but the model answered a neighbouring question instead of refusing. This is the most misleading failure: wrong, confident and cited.
+
+No answer relied on knowledge outside the retrieved chunks.
 
 ### Next steps
 
 - Rewrite the question with an LLM before retrieval, to map plain-language questions back to the papers' terms.
 - Evaluate the answers themselves (correctness and citations).
-- Check the 3 answers given despite a retrieval miss, to see whether they come from neighbouring passages or from the model's own knowledge.
+- Run the refusal evaluation several times and report the average, since results vary between runs.
+- Detect question substitution, for example by asking the model to check that the context answers the exact question before answering.
 
 ## Known limitations
 
@@ -105,6 +115,7 @@ python retrieve.py   # also computes and caches the embeddings
 python ask.py
 python evaluate.py   # Hit@5 per mode, per question type and per paper, plus failed questions
 python evaluate_refusal.py   # refusals on out-of-corpus questions and over-refusal on in-corpus ones
+python check_answers.py   # answer, retrieved chunks and expected section for selected questions
 ```
 
 ## Data
