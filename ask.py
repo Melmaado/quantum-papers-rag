@@ -44,6 +44,19 @@ def answer(question):
     return (response.output_text)
 
 if __name__ == "__main__":
-    #question = "what is the CHSH inequality?"
-    question = "what is photosynthesis?"
-    print(answer(question))
+    #question_1 = "what is the CHSH inequality?"
+    #response_1 = answer(question_1)
+    
+    question_2 = "What is the detection loophole in Bell experiments?"
+    print(question_2)
+    response_2 = answer(question_2)
+    print(response_2)
+    print("\n")
+    #question_3 = "what is photosynthesis?"
+    #response_3 = answer(question_3)
+    print(80*"=")
+    print("\n")
+    question_4 = "What distance did the Micius satellite reach for quantum key distribution?"
+    response_4 = answer(question_4)
+    print(question_4)
+    print(response_4)

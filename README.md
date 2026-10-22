@@ -4,6 +4,23 @@ A retrieval-augmented generation (RAG) assistant that answers questions about a 
 
 > **Status:** v1 complete. Retrieval and refusals are evaluated; answers given despite a retrieval miss were checked by hand, but answer correctness is not evaluated systematically yet.
 
+## Example
+
+**Question:** What is the detection loophole in Bell experiments?
+
+> The **detection loophole** arises when detectors have low efficiency, so that many measurement events are not detected. If the undetected ("no-click") events depend on the measurement choice, the detected events may not be a representative sample of all events—the **fair-sampling assumption** fails. [3]
+>
+> Below a certain detection-efficiency threshold, local hidden-variable models can reproduce the observed data, meaning that an apparent Bell-inequality violation does not establish nonlocality. [3] In typical photon experiments, detection efficiencies of only about 10–20% made this loophole especially significant. [1]
+>
+> [1] (1303.2849, Experimental aspects > Bell experiments > Photons)  
+> [3] (1303.2849, Experimental aspects > Loopholes > Detection Loophole)
+
+**Out-of-corpus question:** What distance did the Micius satellite reach for quantum key distribution?
+
+> I can't find the answer in the corpus
+
+The model knows the answer to the second question, but the papers do not contain it, so the assistant refuses.
+
 ## Goal
 
 The aim is not a polished chatbot, but a pipeline where every design choice is measured. The project compares three retrieval strategies on a test set:
@@ -112,7 +129,7 @@ python download.py
 python extract.py
 python chunk.py
 python retrieve.py   # also computes and caches the embeddings
-python ask.py
+python ask.py  # answers the two example questions above
 python evaluate.py   # Hit@5 per mode, per question type and per paper, plus failed questions
 python evaluate_refusal.py   # refusals on out-of-corpus questions and over-refusal on in-corpus ones
 python check_answers.py   # answer, retrieved chunks and expected section for selected questions
@@ -123,3 +140,7 @@ python check_answers.py   # answer, retrieved chunks and expected section for se
 The papers themselves are **not included** in this repository, as most arXiv papers are not licensed for redistribution. The repository only contains the list of arXiv IDs and the script that downloads them.
 
 Thank you to arXiv for use of its open access interoperability.
+
+## License
+
+The code is released under the MIT License (see `LICENSE`). The arXiv papers are not covered by this license.
