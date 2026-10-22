@@ -1,6 +1,6 @@
-requests
-sentence-transformers
-rank_bm25
-pylatexenc
-openai
-python-dotenv
+requests==2.34.2
+sentence-transformers==6.1.0
+rank-bm25==0.2.2
+pylatexenc==2.11
+openai==3.24.0
+python-dotenv==1.2.4
