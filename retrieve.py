@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import numpy as np
 from rank_bm25 import BM25Okapi
-import re
+from text_utils import tokenize
 
 CHUNKS_PATH = Path("data") / "chunks.json"
 EMBEDDINGS_PATH = Path("data") / "embeddings.npy"
@@ -64,11 +64,6 @@ def search_vector(question, embeddings, chunks, k=5, dedupe=False, depth=20):
         best_of.append(chunks[pos])
     return best_of
 
-def tokenize(text):
-    """Lowercase the text and split it into words, dropping punctuation."""
-    text = text.lower()
-    text = re.findall(r"\w+",text)
-    return text
 
 def rank_bm25(question, bm25, depth):
     """Return the positions of the `depth` chunks with the highest BM25 score, best first.

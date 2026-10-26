@@ -1,29 +1,11 @@
 from retrieve import search_hybrid, search_vector, search_bm25, embeddings, bm25, chunks
+from metrics import is_hit, is_paper_hit
 import json
 from pathlib import Path
 
 SYNTHETIC_QUESTIONS_PATH = Path("eval") / "synthetic_questions.json"
 DEDUPE = False
 
-def is_hit(results, expected):
-    """Return True if any retrieved chunk comes from one of the expected passages.
-    there is a match between a chunk and a passage when both the paper_id and the section are equal
-    """
-    for chunk in results:
-        for expectation in expected:
-            if chunk['paper_id'] == expectation['paper_id'] and chunk['section'] == expectation['section']:
-                return True
-    return False
-
-def is_paper_hit(results, expected):
-    """Return True if any retrieved chunk comes from one of the expected papers.
-    A chunk matches when its paper_id equals an expected paper_id, whatever its section.
-    """
-    for chunk in results:
-        for expectation in expected:
-            if chunk['paper_id'] == expectation['paper_id']:
-                return True
-    return False
 
 if __name__ == "__main__":
         
@@ -45,9 +27,9 @@ if __name__ == "__main__":
     hit_at_5_hybrid = 100*hits_hybrid/len(questions)
 
     print(f"""hit@5 vector = {hit_at_5_vector:.1f} ({hits_vector} questions out of {len(questions)})
-    hit@5 bm25 = {hit_at_5_bm25:.1f} ({hits_bm25} questions out of {len(questions)})
-    hit@5 hybrid = {hit_at_5_hybrid:.1f} ({hits_hybrid} questions out of {len(questions)})
-    """)
+hit@5 bm25 = {hit_at_5_bm25:.1f} ({hits_bm25} questions out of {len(questions)})
+hit@5 hybrid = {hit_at_5_hybrid:.1f} ({hits_hybrid} questions out of {len(questions)})
+""")
 
     hits_lingo_vector = 0
     hits_lingo_bm25 = 0
@@ -127,17 +109,17 @@ if __name__ == "__main__":
     paper_hit_at_5_hybrid  = 100*paper_hits_hybrid/len(questions)
 
     print(f"""lingo:
-    hit@5 vector = {hit_lingo_vector:.1f} ({hits_lingo_vector} questions out of {total_lingo})
-    hit@5 bm25 = {hit_lingo_bm25:.1f} ({hits_lingo_bm25} questions out of {total_lingo})
-    hit@5 hybrid = {hit_lingo_hybrid:.1f} ({hits_lingo_hybrid} questions out of {total_lingo})
+hit@5 vector = {hit_lingo_vector:.1f} ({hits_lingo_vector} questions out of {total_lingo})
+hit@5 bm25 = {hit_lingo_bm25:.1f} ({hits_lingo_bm25} questions out of {total_lingo})
+hit@5 hybrid = {hit_lingo_hybrid:.1f} ({hits_lingo_hybrid} questions out of {total_lingo})
 
-    reworded:
-    hit@5 vector = {hit_reworded_vector:.1f} ({hits_reworded_vector} questions out of {total_reworded})
-    hit@5 bm25 = {hit_reworded_bm25:.1f} ({hits_reworded_bm25} questions out of {total_reworded})
-    hit@5 hybrid = {hit_reworded_hybrid:.1f} ({hits_reworded_hybrid} questions out of {total_reworded})
-    """)
+reworded:
+hit@5 vector = {hit_reworded_vector:.1f} ({hits_reworded_vector} questions out of {total_reworded})
+hit@5 bm25 = {hit_reworded_bm25:.1f} ({hits_reworded_bm25} questions out of {total_reworded})
+hit@5 hybrid = {hit_reworded_hybrid:.1f} ({hits_reworded_hybrid} questions out of {total_reworded})
+""")
 
     print(f"""Paper hit@5 vector = {paper_hit_at_5_vector:.1f} %
-    Paper hit@5 bm25 = {paper_hit_at_5_bm25:.1f}  %
-    Paper hit@5 hybrid = {paper_hit_at_5_hybrid:.1f} %
-    """)
+Paper hit@5 bm25 = {paper_hit_at_5_bm25:.1f}  %
+Paper hit@5 hybrid = {paper_hit_at_5_hybrid:.1f} %
+""")

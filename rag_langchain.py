@@ -4,7 +4,7 @@ import json
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_community.retrievers import BM25Retriever
-from retrieve import tokenize
+from text_utils import tokenize
 from langchain_classic.retrievers import EnsembleRetriever
 
 CHUNKS_PATH = Path("data")/"chunks.json"
