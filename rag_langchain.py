@@ -27,30 +27,38 @@ vector_store = InMemoryVectorStore.from_documents(docs, embeddings)
 searching = {'k':5}
 retriever = vector_store.as_retriever(search_kwargs=searching)
 
-relevant = retriever.invoke("What is the CHSH inequality?")
-print("VECTOR")
-for n, document in enumerate(relevant,1):
-    print(n)
-    print(f"relevant paper_id: {document.metadata['paper_id']}")
-    print(f"relevant section: {document.metadata['section']}")
-    print("\n")
-
 bm25_retriever_default = BM25Retriever.from_documents(documents=docs, k=5)
-relevant_bm25 = bm25_retriever_default.invoke("What is the CHSH inequality?")
-print("BM25 DEFAULT")
-
-for n, document in enumerate(relevant_bm25,1):
-    print(n)
-    print(f"relevant paper_id: {document.metadata['paper_id']}")
-    print(f"relevant section: {document.metadata['section']}")
-    print("\n")
 
 bm25_retriever_tokenize = BM25Retriever.from_documents(documents=docs, preprocess_func=tokenize, k=5)
-relevant_bm25_tokenize = bm25_retriever_tokenize.invoke("What is the CHSH inequality?")
-print("BM25 WITH TOKENIZER")
 
-for n, document in enumerate(relevant_bm25_tokenize,1):
-    print(n)
-    print(f"relevant paper_id: {document.metadata['paper_id']}")
-    print(f"relevant section: {document.metadata['section']}")
-    print("\n")
+searching_20 = {'k':20}
+retriever_20 = vector_store.as_retriever(search_kwargs=searching_20)
+bm25_retriever_tokenize_20 = bm25_retriever_tokenize.model_copy(update={"k": 20})
+ensemble = EnsembleRetriever(retrievers=[retriever_20, bm25_retriever_tokenize_20], weights=[1,1])
+
+def print_results(documents):
+    """Print the rank, paper_id and section of each retrieved document, best first."""
+    for n, document in enumerate(documents,1):
+        print(n)
+        print(f"relevant paper_id: {document.metadata['paper_id']}")
+        print(f"relevant section: {document.metadata['section']}")
+        print("\n")
+
+if __name__ == "__main__":
+
+    print("VECTOR")
+    relevant = retriever.invoke("What is the CHSH inequality?")
+    print_results(relevant)
+
+    print("BM25 DEFAULT")
+    relevant_bm25 = bm25_retriever_default.invoke("What is the CHSH inequality?")
+    print_results(relevant_bm25)
+    
+    print("BM25 WITH TOKENIZER")
+    relevant_bm25_tokenize = bm25_retriever_tokenize.invoke("What is the CHSH inequality?")
+    print_results(relevant_bm25_tokenize)
+
+    print("ENSEMBLE RETRIEVER")
+    full_ensemble = ensemble.invoke("What is the CHSH inequality?")
+    relevant_ensemble = full_ensemble[:5]
+    print_results(relevant_ensemble)
