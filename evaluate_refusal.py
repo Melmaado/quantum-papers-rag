@@ -1,4 +1,5 @@
-from ask import answer, REFUSAL
+from ask import answer
+from prompts import REFUSAL
 from pathlib import Path
 import json
 
