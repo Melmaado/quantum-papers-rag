@@ -2,18 +2,11 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import os
 from retrieve import search_hybrid, embeddings, bm25, chunks
+from prompts import REFUSAL, INSTRUCTIONS
 
 load_dotenv(".env")
 client = OpenAI(api_key = os.environ.get("OPENAI_API_KEY"))
 
-REFUSAL = "I can't find the answer in the corpus"
-
-INSTRUCTIONS = f"""You are an assistant that only answers based on the context, do not use your own knowledge.
-if the question doesn't have the answer in the context answer exactly: "{REFUSAL}",
-Cite the source number in brackets after each claim, for example:
-"Quantum mechanics can reach 2√2 [5]."
-End with the list of cited sources, one per line: [N] (paper_id, section).
-"""
 
 def build_context(results):
     """Format the retrieved chunks as a numbered context for the LLM.
