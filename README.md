@@ -2,7 +2,7 @@
 
 A retrieval-augmented generation (RAG) assistant that answers questions about a small corpus of quantum physics papers from arXiv, citing the paper and section each answer comes from.
 
-> **Status:** v1 complete. Retrieval and refusals are evaluated; answers given despite a retrieval miss were checked by hand, but answer correctness is not evaluated systematically yet.
+> **Status:** v1 complete, and rebuilt with LangChain with identical retrieval results. Retrieval and refusals are evaluated; answers given despite a retrieval miss were checked by hand, but answer correctness is not evaluated systematically yet.
 
 ## Example
 
@@ -28,6 +28,8 @@ The aim is not a polished chatbot, but a pipeline where every design choice is m
 - **Vector search** with sentence embeddings
 - **Keyword search** with BM25
 - **Hybrid search**, combining both with Reciprocal Rank Fusion (RRF)
+
+The pipeline is also rebuilt with LangChain, to compare a framework implementation with the from-scratch one on the same evaluation.
 
 ## Pipeline
 
@@ -102,6 +104,36 @@ No answer relied on knowledge outside the retrieved chunks.
 - Run the refusal evaluation several times and report the average, since results vary between runs.
 - Detect question substitution, for example by asking the model to check that the context answers the exact question before answering.
 
+## From scratch vs LangChain
+
+The whole pipeline was rebuilt with LangChain, reusing the same chunks, embedding model, prompt and LLM, to check what the framework does under the hood.
+
+| Step | From scratch | LangChain |
+| --- | --- | --- |
+| Documents | `data/chunks.json` | Same chunks as `Document` objects, with `paper_id` and `section` as metadata |
+| Vector search | NumPy dot product on normalized embeddings | `HuggingFaceEmbeddings` + `InMemoryVectorStore` |
+| BM25 | `rank_bm25` with a custom `tokenize` | `BM25Retriever` with the same `tokenize` |
+| Hybrid | `rrf_fuse` on the top 20 of each method | `EnsembleRetriever` (equal weights, RRF constant 60) on the top 20 of each method |
+| Generation | OpenAI client and a hand-built prompt | `ChatPromptTemplate` \| `ChatOpenAI` \| `StrOutputParser` chain |
+
+`rag_langchain.py` builds the retrievers, `evaluate_langchain.py` evaluates them and `ask_langchain.py` runs the generation chain.
+
+### Results (Hit@5, 27 synthetic questions)
+
+| Mode | Section, from scratch | Section, LangChain | Paper, from scratch | Paper, LangChain |
+| --- | --- | --- | --- | --- |
+| Vector | 18 | 18 | 23 | 23 |
+| BM25 | 20 | 20 | 25 | 25 |
+| BM25, default preprocessing | – | 19 | – | 25 |
+| Hybrid | 19 | 19 | 25 | 25 |
+
+**Takeaways**
+
+- The LangChain version reproduces the from-scratch results exactly, and returns the same top 5 chunks on a test question for all three modes.
+- Defaults matter. `BM25Retriever` splits text on spaces only (`text.split()`), without lowercasing or removing punctuation, so `"inequality?"` never matches `"inequality"`. On the short question "What is the CHSH inequality?", the default preprocessing returns no relevant chunk. On the 27 longer synthetic questions, it loses only one question (19 instead of 20): a single striking example overstated the effect.
+- Other defaults had to be overridden to match: `BM25Retriever` returns 4 documents by default instead of 5, and `EnsembleRetriever` returns every fused document, so the top 5 are kept by slicing.
+- With the same prompt and model, the generation chain behaves like `ask.py` on the two example questions: the same cited sources for the detection loophole, and a refusal for the Micius satellite. Refusals were not re-measured on the full test set with LangChain.
+
 ## Known limitations
 
 - Section headings containing braces are truncated by the regex (e.g. `Proof of Theorem~\ref*{thm:main`).
@@ -111,6 +143,7 @@ No answer relied on knowledge outside the retrieved chunks.
 - Inline LaTeX comments at the end of a line are kept.
 - Synthetic questions have a single expected section, which can create false negatives.
 - 27 questions is a small sample: one question weighs 3.7 points.
+- `BM25Retriever` comes from `langchain-community`, which is deprecated in favour of standalone integration packages; the import will need to change.
 
 ## Setup
 
@@ -133,6 +166,9 @@ python ask.py  # answers the two example questions above
 python evaluate.py   # Hit@5 per mode, per question type and per paper, plus failed questions
 python evaluate_refusal.py   # refusals on out-of-corpus questions and over-refusal on in-corpus ones
 python check_answers.py   # answer, retrieved chunks and expected section for selected questions
+python rag_langchain.py        # LangChain retrievers on a test question
+python evaluate_langchain.py   # Hit@5 of the LangChain retrievers
+python ask_langchain.py        # LangChain generation chain on the example questions
 ```
 
 ## Data
